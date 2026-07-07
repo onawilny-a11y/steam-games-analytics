@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: raw_steam
+    database: steam-games-analytics  # 👈 Matches your GCP project ID
+    schema: raw                       # 👈 Matches your BigQuery raw dataset
+    tables:
+      - name: games
+      - name: transactions

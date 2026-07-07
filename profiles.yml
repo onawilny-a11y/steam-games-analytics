@@ -1,0 +1,11 @@
+steam_games_analytics:
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: steam-games-analytics  # 👈 Fixed with hyphens to match GCP exactly!
+      dataset: steam_analytics
+      threads: 4
+      timeout_seconds: 300
+      location: US
+  target: dev
