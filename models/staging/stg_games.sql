@@ -4,9 +4,8 @@ with source_games as (
 
 select
     -- Identifiers
-    cast(title as string) as game_title,
     cast(game_id as string) as game_id,
-
+    cast(title as string) as game_title,
     
     -- Categorization & Core Attributes
     cast(genre as string) as genre,
