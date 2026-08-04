@@ -1,0 +1,125 @@
+version: 2
+
+models:
+  - name: dim_game
+    description: "Game dimension containing one row per unique game with attributes covering metadata, review scores, gameplay metrics, and feature flags."
+    config:
+      materialized: table
+    columns:
+      - name: game_id
+        description: "Primary key. Unique identifier for each game."
+        tests:
+          - unique
+          - not_null
+      - name: game_title
+        description: "Official title of the game."
+        tests:
+          - not_null
+      - name: genre
+        description: "Primary genre classification of the game (e.g., Action, RPG, Sports)."
+      - name: developer_name
+        description: "Studio or individual responsible for developing the game."
+      - name: release_year
+        description: "Calendar year the game was launched on Steam."
+      - name: esrb_rating
+        description: "ESRB age rating assigned to the game (e.g., E, T, M)."
+      - name: launch_price_usd
+        description: "Base retail price of the game at launch in USD."
+      - name: metacritic_score
+        description: "Aggregated critic score from Metacritic, ranging 0–100."
+      - name: user_score
+        description: "Aggregated user score from Metacritic, ranging 0.0–10.0."
+      - name: critic_review_count
+        description: "Total number of critic reviews contributing to the Metacritic score."
+      - name: user_review_count
+        description: "Total number of user reviews contributing to the user score."
+      - name: hltb_main_hours
+        description: "Estimated hours to complete the main story, sourced from HowLongToBeat."
+      - name: hltb_completionist_hours
+        description: "Estimated hours to 100% complete the game, sourced from HowLongToBeat."
+      - name: is_sequel
+        description: "True if the game is a sequel to a previously released title."
+      - name: has_online_multiplayer
+        description: "True if the game includes an online multiplayer mode."
+      - name: has_dlc_released
+        description: "True if at least one DLC pack has been released for the game."
+      - name: has_microtransactions
+        description: "True if the game contains microtransactions."
+      - name: has_loot_boxes
+        description: "True if the game contains loot boxes."
+      - name: is_game_pass_available
+        description: "True if the game is available on Xbox Game Pass."
+      - name: has_vr_support
+        description: "True if the game supports VR headsets."
+      - name: is_goty_nominated
+        description: "True if the game received a Game of the Year nomination."
+      - name: is_goty_won
+        description: "True if the game won a Game of the Year award."
+
+  - name: dim_publisher
+    description: "Publisher dimension containing one row per unique publisher with regional and tier classification attributes."
+    config:
+      materialized: table
+    columns:
+      - name: publisher_name
+        description: "Primary key. Name of the game publisher."
+        tests:
+          - unique
+          - not_null
+      - name: publisher_region
+        description: "Geographic region where the publisher is headquartered (e.g., NA, EU, JP)."
+      - name: publisher_tier
+        description: "Classification of the publisher by size or market standing (e.g., AAA, Indie, Mid-tier)."
+
+  - name: dim_platform
+    description: "Platform dimension containing one row per unique gaming platform with hardware classification attributes."
+    config:
+      materialized: table
+    columns:
+      - name: platform_name
+        description: "Primary key. Name of the gaming platform (e.g., PC, PlayStation 5, Xbox Series X)."
+        tests:
+          - unique
+          - not_null
+      - name: platform_type
+        description: "Category of the platform (e.g., Console, PC, Handheld)."
+      - name: platform_maker
+        description: "Company that manufactures or operates the platform (e.g., Sony, Microsoft, Nintendo, Valve)."
+      - name: platform_generation
+        description: "Console hardware generation number (e.g., 9 for PS5/Xbox Series X)."
+
+  - name: fct_game_sales
+    description: "Fact table capturing individual game purchase transactions, joining transactional data with game attributes to support sales analytics."
+    config:
+      materialized: table
+    columns:
+      - name: transaction_id
+        description: "Primary key. Unique identifier for each sales transaction."
+        tests:
+          - unique
+          - not_null
+      - name: game_id
+        description: "Foreign key to dim_game."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_game')
+              field: game_id
+      - name: customer_id
+        description: "Unique identifier for the purchasing customer."
+        tests:
+          - not_null
+      - name: sale_date
+        description: "Calendar date the transaction occurred."
+        tests:
+          - not_null
+      - name: region_code
+        description: "Geographic region where the sale took place (e.g., NA, EU, APAC)."
+      - name: payment_method
+        description: "Payment method used for the transaction (e.g., Credit Card, PayPal, Steam Wallet)."
+      - name: unit_price_usd
+        description: "Gross price per unit charged to the customer before discounts, in USD."
+      - name: discount_percentage
+        description: "Integer discount percentage applied at the time of purchase (e.g., 20 = 20% off)."
+      - name: net_revenue_usd
+        description: "Derived revenue after discount: unit_price_usd * (1 - discount_percentage / 100). Rounded to 2 decimal places."
