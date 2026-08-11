@@ -13,10 +13,12 @@ games as (
 
 select
     -- Keys
+    {{ dbt_utils.generate_surrogate_key(['t.transaction_id']) }} as transaction_key,
     t.transaction_id,
     t.game_id,
     t.customer_id,
     t.sale_date,
+
 
     -- Degenerate dims
     t.region_code,
