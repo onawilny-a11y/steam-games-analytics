@@ -1,5 +1,10 @@
+
+
 with transactions as (
     select * from {{ ref('stg_transactions') }}
+    {% if is_incremental() %}
+    where sale_date >= (select max(sale_date) from {{ this}})
+    {% endif %}
 ),
 
 games as (
