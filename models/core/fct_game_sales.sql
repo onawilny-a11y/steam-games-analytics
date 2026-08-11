@@ -25,7 +25,7 @@ select
     -- Measures
     t.unit_price_usd,
     t.discount_percentage,
-    round(t.unit_price_usd * (1 - t.discount_percentage / 100.0), 2) as net_revenue_usd
+    {{ calc_net_revenue('t.unit_price_usd', 't.discount_percentage') }} as net_revenue_usd
 
 from transactions t
 left join games g on t.game_id = g.game_id
